@@ -12,7 +12,6 @@ import {
 const router = Router();
 const productsController = new ProductsController();
 
-// Public routes
 router.get(
   '/',
   validate(listProductsSchema),

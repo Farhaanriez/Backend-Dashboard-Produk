@@ -6,9 +6,6 @@ import { CreateProductInput, UpdateProductInput, ProductFilters } from '../types
 const productsService = new ProductsService();
 
 export class ProductsController {
-  /**
-   * GET /api/products
-   */
   async getAllProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const filters: ProductFilters = req.query;
@@ -22,9 +19,6 @@ export class ProductsController {
     }
   }
 
-  /**
-   * GET /api/products/:id
-   */
   async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
       const id = parseInt(String(req.params.id), 20);
@@ -38,10 +32,6 @@ export class ProductsController {
     }
   }
 
-  /**
-   * POST /api/products
-   * Protected - ADMIN only
-   */
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const data: CreateProductInput = req.body;
@@ -55,10 +45,6 @@ export class ProductsController {
     }
   }
 
-  /**
-   * PUT /api/products/:id
-   * Protected - ADMIN only
-   */
   async updateProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const id = parseInt(String(req.params.id), 10);
@@ -73,10 +59,6 @@ export class ProductsController {
     }
   }
 
-  /**
-   * DELETE /api/products/:id
-   * Protected - ADMIN only
-   */
   async deleteProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const id = parseInt(String(req.params.id), 10);
@@ -90,9 +72,6 @@ export class ProductsController {
     }
   }
 
-  /**
-   * GET /api/products/categories
-   */
   async getCategories(req: Request, res: Response, next: NextFunction) {
     try {
       const categories = await productsService.getCategories();

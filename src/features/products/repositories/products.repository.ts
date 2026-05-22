@@ -17,10 +17,8 @@ export class ProductsRepository {
     const limitNum = parseInt(limit, 10);
     const skip = (pageNum - 1) * limitNum;
 
-    // Build where clause
     const where: Prisma.ProductWhereInput = {};
 
-    // Search filter (nama or kategori)
     if (search) {
       where.OR = [
         { nama: { contains: search, mode: 'insensitive' } },
@@ -28,19 +26,16 @@ export class ProductsRepository {
       ];
     }
 
-    // Category filter
     if (kategori) {
       where.kategori = kategori;
     }
 
-    // Price range filter
     if (minHarga || maxHarga) {
       where.harga = {};
       if (minHarga) where.harga.gte = parseInt(minHarga, 10);
       if (maxHarga) where.harga.lte = parseInt(maxHarga, 10);
     }
 
-    // Execute query with pagination
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
@@ -62,27 +57,18 @@ export class ProductsRepository {
     };
   }
 
-  /**
-   * Find product by ID
-   */
   async findById(id: number): Promise<Product | null> {
     return prisma.product.findUnique({
       where: { id },
     });
   }
 
-  /**
-   * Create new product
-   */
   async create(data: CreateProductInput): Promise<Product> {
     return prisma.product.create({
       data,
     });
   }
 
-  /**
-   * Update product
-   */
   async update(id: number, data: UpdateProductInput): Promise<Product> {
     return prisma.product.update({
       where: { id },
@@ -90,18 +76,13 @@ export class ProductsRepository {
     });
   }
 
-  /**
-   * Delete product
-   */
+
   async delete(id: number): Promise<Product> {
     return prisma.product.delete({
       where: { id },
     });
   }
 
-  /**
-   * Get all categories (unique)
-   */
   async getCategories(): Promise<string[]> {
     const result = await prisma.product.findMany({
       select: { kategori: true },

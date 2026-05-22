@@ -11,7 +11,6 @@ import { RegisterInput, LoginInput, AuthTokens, AuthResponse } from '../types/au
 
 export class AuthService {
   async register(data: RegisterInput): Promise<AuthResponse> {
-    // 1. Check if email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -40,7 +39,6 @@ export class AuthService {
 
     const tokens = this.generateTokens(user.id, user.email, user.role);
 
-    // 5. Save refresh token to database
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return {
@@ -49,11 +47,7 @@ export class AuthService {
     };
   }
 
-  /**
-   * Login user
-   */
   async login(data: LoginInput): Promise<AuthResponse> {
-    // 1. Find user
     const user = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -62,17 +56,14 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // 2. Verify password
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // 3. Generate tokens
     const tokens = this.generateTokens(user.id, user.email, user.role);
 
-    // 4. Save refresh token
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return {
@@ -86,19 +77,14 @@ export class AuthService {
     };
   }
 
-  /**
-   * Refresh access token
-   */
   async refreshToken(refreshToken: string): Promise<AuthTokens> {
     try {
-      // 1. Verify refresh token
       const decoded = jwt.verify(refreshToken, env.JWT_SECRET) as {
         userId: number;
         email: string;
         role: string;
       };
 
-      // 2. Check if refresh token exists in database
       const storedToken = await prisma.refreshToken.findUnique({
         where: { token: refreshToken },
       });
@@ -129,35 +115,26 @@ export class AuthService {
     }
   }
 
-  /**
-   * Logout - delete refresh token
-   */
   async logout(refreshToken: string): Promise<void> {
     await prisma.refreshToken.deleteMany({
       where: { token: refreshToken },
     });
   }
 
-  /**
-   * Generate JWT tokens
-   */
   private generateTokens(userId: number, email: string, role: string): AuthTokens {
     const payload = { userId, email, role };
 
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET!, {
-  expiresIn: "1d"
+  expiresIn: "1h"
     });
 
     const refreshToken = jwt.sign(payload, process.env.JWT_SECRET!, {
-  expiresIn: "1d"
+  expiresIn: "7d"
     });
 
     return { accessToken, refreshToken };
   }
 
-  /**
-   * Save refresh token to database
-   */
   private async saveRefreshToken(userId: number, token: string): Promise<void> {
     // Calculate expiration date (7 days from now)
     const expiresAt = new Date();
