@@ -36,7 +36,6 @@ npm install
 3. Setup environment variables
 ```bash
 cp .env.example .env
-# Edit .env dengan konfigurasi Anda
 ```
 
 4. Setup database
